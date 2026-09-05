@@ -1,0 +1,203 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+:root {
+  font-family: 'Manrope', sans-serif;
+  color: #233044;
+  background: #f6f8fb;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --navy: #172536;
+  --teal: #0f9384;
+  --teal-soft: #dff5f0;
+  --coral: #ee765d;
+  --muted: #718096;
+  --line: #e2e8f0;
+  --panel: #fff;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+}
+button,
+input {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.app-body {
+  display: flex;
+  flex: 1;
+  width: min(1260px, 100%);
+  margin: 0 auto;
+}
+.page-content {
+  flex: 1;
+  padding: 42px 48px 72px;
+}
+.page-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  margin-bottom: 34px;
+}
+.eyebrow {
+  margin: 0 0 10px;
+  color: var(--teal);
+  font:
+    500 12px 'DM Mono',
+    monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+h1 {
+  margin-bottom: 10px;
+  color: var(--navy);
+  font-size: clamp(30px, 4vw, 46px);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+h2 {
+  color: var(--navy);
+  font-size: 22px;
+  letter-spacing: -0.03em;
+}
+h3 {
+  color: var(--navy);
+  font-size: 16px;
+}
+.muted {
+  color: var(--muted);
+}
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(23, 37, 54, 0.04);
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  padding: 21px;
+}
+.stat-card strong {
+  display: block;
+  margin: 8px 0 3px;
+  color: var(--navy);
+  font-size: 30px;
+  letter-spacing: -0.05em;
+}
+.stat-label {
+  color: var(--muted);
+  font-size: 13px;
+}
+.feature-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  gap: 22px;
+}
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 21px 22px 15px;
+}
+.panel-header h2 {
+  margin: 0;
+}
+.study-card {
+  min-height: 320px;
+  padding: 28px;
+  background: var(--navy);
+  color: white;
+  overflow: hidden;
+  position: relative;
+}
+.study-card .eyebrow {
+  color: #80ded1;
+}
+.study-card h2 {
+  max-width: 360px;
+  margin: 36px 0 12px;
+  color: white;
+  font-size: 30px;
+}
+.study-card p {
+  max-width: 390px;
+  color: #aebdca;
+}
+.study-actions {
+  display: flex;
+  gap: 11px;
+  margin-top: 30px;
+}
+.progress-track {
+  height: 5px;
+  margin-top: 22px;
+  border-radius: 5px;
+  background: #34485c;
+}
+.progress-track span {
+  display: block;
+  width: 62%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--teal);
+}
+.activity-list {
+  list-style: none;
+  padding: 0 22px 10px;
+  margin: 0;
+}
+.activity-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 15px 0;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+}
+.activity-list small {
+  color: var(--muted);
+  white-space: nowrap;
+}
+@media (max-width: 800px) {
+  .app-body {
+    display: block;
+  }
+  .page-content {
+    padding: 30px 20px 52px;
+  }
+  .page-heading {
+    align-items: start;
+    flex-direction: column;
+    margin-bottom: 25px;
+  }
+  .stats-grid,
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
