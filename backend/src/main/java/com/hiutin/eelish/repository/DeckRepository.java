@@ -9,5 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.hiutin.eelish.entity.Deck;
 
 public interface DeckRepository extends JpaRepository<Deck, UUID> {
-    public Page<Deck> findAll(Pageable pageable);
+    Page<Deck> findByParentDeckIsNull(Pageable pageable);
 }

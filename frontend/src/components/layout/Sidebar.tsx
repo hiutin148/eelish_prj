@@ -1,8 +1,10 @@
 const links = [
   ['⌂', 'Dashboard', '#/'],
   ['▣', 'My decks', '#/decks'],
+  ['◉', 'Practice', '#/practice'],
   ['✓', 'Tasks', '#/tasks'],
-  ['⚙', 'Settings', '#/about'],
+  ['◒', 'Progress', '#/progress'],
+  ['⚙', 'Settings', '#/settings'],
 ]
 export function Sidebar() {
   return (
@@ -19,12 +21,6 @@ export function Sidebar() {
             {label}
           </a>
         ))}
-      </nav>
-      <p className="nav-label">Support</p>
-      <nav className="nav-list">
-        <a className="nav-link" href="#/about">
-          <span className="nav-icon">?</span>About Eelish
-        </a>
       </nav>
     </aside>
   )

@@ -54,7 +54,9 @@ public class EntityDtoMapper {
     }
 
     public DeckDto toDto(Deck entity) {
-        return new DeckDto(entity.getId(), entity.getName(), toDeckSummary(entity.getParentDeck()));
+        List<DeckDto> childDecks = entity.getChildDecks() == null ? List.of()
+            : entity.getChildDecks().stream().map(deck -> toDto(deck)).toList();
+        return new DeckDto(entity.getId(), entity.getName(), toDeckSummary(entity.getParentDeck()), childDecks);
     }
 
     private NoteSummaryDto toNoteSummary(Note entity) {
@@ -95,6 +97,6 @@ public class EntityDtoMapper {
     }
 
     public List<DeckDto> toDeckDtos(List<Deck> entities) {
-        return entities.stream().map(this::toDto).toList();
+        return entities.stream().map(deck -> toDto(deck)).toList();
     }
 }

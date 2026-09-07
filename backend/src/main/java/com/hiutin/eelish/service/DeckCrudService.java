@@ -30,7 +30,7 @@ public class DeckCrudService {
 
     @Transactional(readOnly = true)
     public PageResponse<DeckDto> findAll(Pageable pageable) {
-        Page<Deck> page = repository.findAll(pageable);
+        Page<Deck> page = repository.findByParentDeckIsNull(pageable);
         return PageResponse.from(page.map(mapper::toDto));
     }
 
