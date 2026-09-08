@@ -15,7 +15,7 @@ export default defineConfig([
       tseslint.configs.recommended,
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
-      eslintConfigPrettier.configs.recommended,
+      eslintConfigPrettier,
     ],
     languageOptions: {
       globals: globals.browser,

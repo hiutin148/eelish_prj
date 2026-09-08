@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getDecks } from '../api/deckApi'
+import { getDecks, importSource } from '../api/deckApi'
 import type { Deck } from '../types/types'
 
 export function useDecks() {
@@ -38,6 +38,23 @@ export function useDecks() {
     }
   }, [page, pageSize])
 
+  const importDeckSource = async (file: File) => {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      console.log('Importing deck from file:', file.name)
+      await importSource(file);
+      const response = await getDecks(page, pageSize)
+      setDecks(response.data.content)
+      setTotalPages(response.data.totalPages)
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError : new Error('Failed to import deck'))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return {
     decks,
     page,
@@ -50,5 +67,6 @@ export function useDecks() {
     goToPage: (nextPage: number) => {
       setPage(Math.max(1, Math.min(nextPage, totalPages || 1)))
     },
+    importDeckSource,
   }
 }

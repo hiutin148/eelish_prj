@@ -1,22 +1,172 @@
 import { useMemo, useState } from 'react'
-import { useDecks } from '../features/decks/hooks/useDecks'
-
-const sampleDecks = [
-  { name: 'Everyday conversations', words: 48, level: 'A2', progress: 72, color: 'bg-amber-100' },
-  { name: 'Travel essentials', words: 32, level: 'B1', progress: 38, color: 'bg-sky-100' },
-  { name: 'Work & meetings', words: 64, level: 'B1', progress: 19, color: 'bg-rose-100' },
-  { name: 'Phrasal verbs', words: 28, level: 'B2', progress: 56, color: 'bg-violet-100' },
-  { name: 'IELTS speaking', words: 86, level: 'B2', progress: 31, color: 'bg-lime-100' },
-  { name: 'Irregular verbs', words: 42, level: 'A2', progress: 84, color: 'bg-orange-100' },
-]
+import { Modal } from '../components/ui/Modal'
+import { DeckGrid, DeckWords, useDecks } from '../features/decks'
+import type { Deck } from '../features/decks'
 
 export function Decks() {
-  const { decks, isLoading, error, hasNextPage, hasPreviousPage, goToPage } = useDecks()
+  const { decks, isLoading, error, hasNextPage, hasPreviousPage, goToPage, importDeckSource } =
+    useDecks()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('All')
-  const apiDecks = decks.map((deck, index) => ({ name: deck.name, words: 24 + index * 8, level: index % 2 ? 'B1' : 'A2', progress: 20 + index * 11, color: sampleDecks[index % sampleDecks.length].color }))
-  const items = apiDecks.length > 0 ? apiDecks : sampleDecks
-  const visible = useMemo(() => items.filter((deck) => deck.name.toLowerCase().includes(search.toLowerCase()) && (filter === 'All' || deck.level === filter)), [filter, items, search])
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [deckPath, setDeckPath] = useState<Deck[]>([])
+  const [selectedLeaf, setSelectedLeaf] = useState<Deck | null>(null)
 
-  return <div className="!mx-auto !max-w-6xl !space-y-7"><div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><p className="!mb-2 !font-mono !text-xs !uppercase !tracking-[0.18em] !text-emerald-700">Vocabulary library</p><h1 className="!mb-2 !text-5xl !font-extrabold !tracking-[-0.07em] !text-slate-900">Your <span className="!font-serif !font-normal !italic !text-orange-500">decks.</span></h1><p className="!text-sm !text-slate-500">Organize the words you want to make your own.</p></div><button className="!rounded-xl !bg-emerald-700 !px-5 !py-3 !text-sm !font-bold !text-white hover:!bg-emerald-800">+ Create new deck</button></div><div className="flex flex-col gap-3 !rounded-2xl !border !border-slate-200 !bg-white !p-4 !shadow-sm sm:flex-row"><label className="flex flex-1 items-center gap-3 !rounded-lg !bg-slate-50 !px-3 !text-slate-400"><span>⌕</span><input className="!min-w-0 !flex-1 !border-0 !bg-transparent !py-3 !text-sm !outline-none" placeholder="Search decks" value={search} onChange={(event) => setSearch(event.target.value)} /></label><div className="flex gap-2">{['All', 'A2', 'B1', 'B2'].map((item) => <button className={`!rounded-lg !px-4 !py-2 !text-xs !font-bold ${filter === item ? '!bg-emerald-700 !text-white' : '!bg-slate-100 !text-slate-500'}`} key={item} onClick={() => setFilter(item)}>{item}</button>)}</div></div>{isLoading && <p className="!text-sm !text-slate-500">Loading your decks...</p>}{error && <p className="!rounded-xl !bg-amber-50 !p-4 !text-sm !text-amber-800">Showing your saved starter decks while the library reconnects.</p>}<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{visible.map((deck) => <article className={`group !min-h-60 !rounded-2xl !p-5 !shadow-sm !transition hover:-translate-y-1 hover:!shadow-lg ${deck.color}`} key={deck.name}><div className="flex items-start justify-between"><div className="grid size-10 place-items-center !rounded-xl !bg-white/70 !font-bold !text-slate-800">Aa</div><button className="!text-lg !text-slate-600 transition group-hover:translate-x-1 group-hover:-translate-y-1" aria-label={`Open ${deck.name}`}>↗</button></div><div className="mt-10 flex items-center gap-2"><h2 className="!m-0 !text-base !font-bold !text-slate-900">{deck.name}</h2><span className="!rounded-full !bg-white/60 !px-2 !py-1 !text-[10px] !font-bold !text-slate-600">{deck.level}</span></div><p className="!mb-5 !mt-1 !text-xs !text-slate-600">{deck.words} words · review deck</p><div className="!mb-2 !h-1.5 !rounded-full !bg-white/70"><span className="block !h-full !rounded-full !bg-slate-800" style={{ width: `${deck.progress}%` }} /></div><span className="!text-[11px] !font-medium !text-slate-600">{deck.progress}% mastered</span></article>)}</div><div className="flex justify-center gap-3"><button className="!rounded-lg !border !border-slate-200 !px-4 !py-2 !text-xs !font-bold !text-slate-600 disabled:!opacity-40" disabled={!hasPreviousPage} onClick={() => goToPage(1)}>Previous</button><button className="!rounded-lg !border !border-slate-200 !px-4 !py-2 !text-xs !font-bold !text-slate-600 disabled:!opacity-40" disabled={!hasNextPage} onClick={() => goToPage(2)}>Next page</button></div></div>
+  const currentDeck = deckPath[deckPath.length - 1]
+  const items = currentDeck?.childDecks ?? decks
+  const visible = useMemo(
+    () =>
+      items.filter(
+        (deck) =>
+          deck.name.toLowerCase().includes(search.toLowerCase()) &&
+          (filter === 'All' || (deck.id.length % 2 === 0 ? 'A2' : 'B1') === filter)
+      ),
+    [filter, items, search]
+  )
+
+  const showDeck = (deck: Deck) => {
+    if (deck.childDecks.length > 0) {
+      setDeckPath((path) => [...path, deck])
+      setSelectedLeaf(null)
+      return
+    }
+
+    setSelectedLeaf(deck)
+  }
+
+  const goBack = () => {
+    if (selectedLeaf) {
+      setSelectedLeaf(null)
+      return
+    }
+
+    setDeckPath((path) => path.slice(0, -1))
+  }
+
+  const closeImportModal = () => {
+    setSelectedFile(null)
+    setIsImportModalOpen(false)
+  }
+
+  const importDeck = () => {
+    if (selectedFile) {
+      importDeckSource(selectedFile)
+    }
+  }
+
+  return (
+    <div className="!mx-auto !max-w-6xl !space-y-7">
+      <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+        <div>
+          <p className="!mb-2 !font-mono !text-xs !uppercase !tracking-[0.18em] !text-emerald-700">
+            Vocabulary library
+          </p>
+          <h1 className="!mb-2 !text-5xl !font-extrabold !tracking-[-0.07em] !text-slate-900">
+            Your <span className="!font-serif !font-normal !italic !text-orange-500">decks.</span>
+          </h1>
+          <p className="!text-sm !text-slate-500">Organize the words you want to make your own.</p>
+        </div>
+        <button
+          className="!rounded-xl !bg-emerald-700 !px-5 !py-3 !text-sm !font-bold !text-white hover:!bg-emerald-800"
+          onClick={() => setIsImportModalOpen(true)}
+        >
+          + Import deck
+        </button>
+      </div>
+      <div className="flex flex-col gap-3 !rounded-2xl !border !border-slate-200 !bg-white !p-4 !shadow-sm sm:flex-row">
+        <label className="flex flex-1 items-center gap-3 !rounded-lg !bg-slate-50 !px-3 !text-slate-400">
+          <span>⌕</span>
+          <input
+            className="!min-w-0 !flex-1 !border-0 !bg-transparent !py-3 !text-sm !outline-none"
+            placeholder="Search decks"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </label>
+        <div className="flex gap-2">
+          {['All', 'A2', 'B1', 'B2'].map((item) => (
+            <button
+              className={`!rounded-lg !px-4 !py-2 !text-xs !font-bold ${filter === item ? '!bg-emerald-700 !text-white' : '!bg-slate-100 !text-slate-500'}`}
+              key={item}
+              onClick={() => setFilter(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+      </div>
+      {isLoading && <p className="!text-sm !text-slate-500">Loading your decks...</p>}
+      {error && (
+        <p className="!rounded-xl !bg-amber-50 !p-4 !text-sm !text-amber-800">
+          Showing your saved starter decks while the library reconnects.
+        </p>
+      )}
+      {(deckPath.length > 0 || selectedLeaf) && (
+        <button
+          className="!rounded-lg !border !border-slate-200 !px-4 !py-2 !text-xs !font-bold !text-slate-600"
+          onClick={goBack}
+        >
+          ← All decks
+        </button>
+      )}
+      {selectedLeaf ? (
+        <DeckWords deck={selectedLeaf} />
+      ) : (
+        <DeckGrid decks={visible} onOpen={showDeck} />
+      )}
+      <div className="flex justify-center gap-3">
+        <button
+          className="!rounded-lg !border !border-slate-200 !px-4 !py-2 !text-xs !font-bold !text-slate-600 disabled:!opacity-40"
+          disabled={!hasPreviousPage}
+          onClick={() => goToPage(1)}
+        >
+          Previous
+        </button>
+        <button
+          className="!rounded-lg !border !border-slate-200 !px-4 !py-2 !text-xs !font-bold !text-slate-600 disabled:!opacity-40"
+          disabled={!hasNextPage}
+          onClick={() => goToPage(2)}
+        >
+          Next page
+        </button>
+      </div>
+      {isImportModalOpen && (
+        <Modal title="Import deck" onClose={closeImportModal}>
+          <div className="!space-y-4">
+            <p className="!m-0 !text-sm !text-slate-500">
+              Choose a CSV or JSON file from your computer.
+            </p>
+            <label className="block !cursor-pointer !rounded-xl !border-2 !border-dashed !border-slate-300 !p-6 !text-center hover:!border-emerald-600">
+              <span className="!text-sm !font-semibold !text-slate-700">
+                {selectedFile ? selectedFile.name : 'Choose a file'}
+              </span>
+              <input
+                className="!sr-only"
+                type="file"
+                accept=".csv,.json,text/csv,application/json,.apkg"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) {
+                    setSelectedFile(file)
+                  }
+                }}
+              />
+            </label>
+            {selectedFile && (
+              <button
+                className="!w-full !rounded-xl !bg-emerald-700 !px-4 !py-3 !text-sm !font-bold !text-white hover:!bg-emerald-800"
+                onClick={() => {
+                  importDeck()
+                  closeImportModal()
+                }}
+              >
+                Import {selectedFile.name}
+              </button>
+            )}
+          </div>
+        </Modal>
+      )}
+    </div>
+  )
 }

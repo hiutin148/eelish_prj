@@ -10,6 +10,6 @@ interface PageResponse<T> {
 }
 
 export async function getCards(): Promise<Card[]> {
-  const response = await apiClient.get<ApiResponse<PageResponse<Card>>>('/cards')
+  const response = await apiClient.get<ApiResponse<PageResponse<Card>>>('/api/cards')
   return response.data.data.content
 }

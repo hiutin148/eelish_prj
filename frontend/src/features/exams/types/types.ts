@@ -1,0 +1,1 @@
+export type ExamQuestion = { prompt: string; options: string[]; answer: string }

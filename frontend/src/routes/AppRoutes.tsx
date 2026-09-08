@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { Header } from '../components/layout/Header'
 import { Sidebar } from '../components/layout/Sidebar'
 import { Footer } from '../components/layout/Footer'
@@ -7,41 +6,32 @@ import { NotFound } from '../pages/NotFound'
 import '../App.css'
 import { Decks } from '../pages/Decks'
 import { Practice } from '../pages/Practice'
-import { Tasks } from '../pages/Tasks'
 import { Progress } from '../pages/Progress'
 import { Settings } from '../pages/Settings'
+import { Grammar } from '../pages/Grammar'
+import { Exams } from '../pages/Exams'
+import { Flashcards } from '../pages/Flashcards'
+import { Route, Routes } from 'react-router-dom'
 
 export function AppRoutes() {
-  const [route, setRoute] = useState(window.location.hash || '#/')
-  useEffect(() => {
-    const onHashChange = () => setRoute(window.location.hash || '#/')
-    window.addEventListener('hashchange', onHashChange)
-    return () => window.removeEventListener('hashchange', onHashChange)
-  }, [])
-  const page = (() => {
-    switch (route) {
-      case '#/':
-        return <Home />
-      case '#/decks':
-        return <Decks />
-      case '#/practice':
-        return <Practice />
-      case '#/tasks':
-        return <Tasks />
-      case '#/progress':
-        return <Progress />
-      case '#/settings':
-        return <Settings />
-      default:
-        return <NotFound />
-    }
-  })()
   return (
     <div className="app-shell">
       <Header />
       <div className="app-body">
         <Sidebar />
-        <main className="page-content">{page}</main>
+        <main className="page-content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/decks" element={<Decks />} />
+            <Route path="/practice" element={<Practice />} />
+            <Route path="/flashcards" element={<Flashcards />} />
+            <Route path="/grammar" element={<Grammar />} />
+            <Route path="/exams" element={<Exams />} />
+            <Route path="/progress" element={<Progress />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
       </div>
       <Footer />
     </div>
